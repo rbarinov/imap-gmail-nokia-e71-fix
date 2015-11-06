@@ -35,7 +35,7 @@ namespace testimap
 					var rawStream = client.GetStream ();
 					var inputStream = incoming.GetStream ();
 
-					Stream enc = null;
+					SslStream enc = null;
 
 					try {
 						var ssl = new SslStream (rawStream);
@@ -57,6 +57,7 @@ namespace testimap
 							try {
 								if (inputStream.DataAvailable) {
 									var read = await inputStream.ReadAsync (buffer, 0, 1024);
+
 									log.Debug("IN " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await clientStream.WriteAsync (buffer, 0, read);
@@ -81,15 +82,16 @@ namespace testimap
 						var buffer = new byte[1024];
 						while (true) {
 							try {
-								
-								if (rawStream.DataAvailable) {
-									var read = await clientStream.ReadAsync (buffer, 0, 1024);
+								var read = await clientStream.ReadAsync (buffer, 0, 1024);
+
+								if (read > 0) {
+									
 									log.Debug("OUT " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await inputStream.WriteAsync (buffer, 0, read);
 									await inputStream.FlushAsync ();
 								} else {
-									await Task.Delay (50);	
+									await Task.Delay (50);
 									if (!IsConnected(client.Client) || !IsConnected(incoming.Client)) {
 										throw new Exception();
 									}
