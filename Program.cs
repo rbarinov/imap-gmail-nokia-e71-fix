@@ -55,7 +55,7 @@ namespace testimap
 							try {
 								var read = await inputStream.ReadAsync (buffer, 0, 1024);
 								if (read > 0) {
-									log.Trace("IN " + Encoding.UTF8.GetString(buffer, 0, read));
+									log.Debug("IN " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await clientStream.WriteAsync (buffer, 0, read);
 									await clientStream.FlushAsync ();
@@ -78,7 +78,7 @@ namespace testimap
 							try {
 								var read = await clientStream.ReadAsync (buffer, 0, 1024);
 								if (read > 0) {
-									log.Trace("OUT " + Encoding.UTF8.GetString(buffer, 0, read));
+									log.Debug("OUT " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await inputStream.WriteAsync (buffer, 0, read);
 									await inputStream.FlushAsync ();
