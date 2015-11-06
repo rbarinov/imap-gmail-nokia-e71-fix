@@ -26,6 +26,8 @@ namespace testimap
 					var incoming = await listener.AcceptTcpClientAsync ();
 
 					var client = new TcpClient ();
+//					client.Client.Blocking = false;
+//					incoming.Client.Blocking = false;
 					await client.ConnectAsync ("imap.gmail.com", 993);
 
 					log.Warn("Got connection");
@@ -53,14 +55,17 @@ namespace testimap
 						var buffer = new byte[1024];
 						while (true) {
 							try {
-								var read = await inputStream.ReadAsync (buffer, 0, 1024);
-								if (read > 0) {
+								if (inputStream.DataAvailable) {
+									var read = await inputStream.ReadAsync (buffer, 0, 1024);
 									log.Debug("IN " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await clientStream.WriteAsync (buffer, 0, read);
 									await clientStream.FlushAsync ();
 								} else {
 									await Task.Delay (50);	
+									if (!IsConnected(client.Client) || !IsConnected(incoming.Client)) {
+										throw new Exception();
+									}
 								}
 							} catch (Exception e) {
 								incoming.Close();
@@ -76,14 +81,18 @@ namespace testimap
 						var buffer = new byte[1024];
 						while (true) {
 							try {
-								var read = await clientStream.ReadAsync (buffer, 0, 1024);
-								if (read > 0) {
+								
+								if (rawStream.DataAvailable) {
+									var read = await clientStream.ReadAsync (buffer, 0, 1024);
 									log.Debug("OUT " + Encoding.UTF8.GetString(buffer, 0, read));
 
 									await inputStream.WriteAsync (buffer, 0, read);
 									await inputStream.FlushAsync ();
 								} else {
 									await Task.Delay (50);	
+									if (!IsConnected(client.Client) || !IsConnected(incoming.Client)) {
+										throw new Exception();
+									}
 								}
 							} catch (Exception e) {
 								incoming.Close();
@@ -97,6 +106,15 @@ namespace testimap
 				}
 
 			}).Wait ();
+		}
+
+		public static bool IsConnected(Socket socket)
+		{
+			try
+			{
+				return !(socket.Poll(1, SelectMode.SelectRead & SelectMode.SelectWrite) && socket.Available == 0);
+			}
+			catch (SocketException) { return false; }
 		}
 	}
 }
