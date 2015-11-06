@@ -12,13 +12,26 @@ namespace testimap
 	{
 		public static void Main (string[] args)
 		{
-			TcpListener listener = new TcpListener (8143);
+			string host, slport, sport;
+
+			if (args.Length < 3) {
+				throw new ArgumentException ("use args: proxyport host port");
+			}
+
+			slport = args [0];
+			host = args [1];
+			sport = args [2];
+
+			int localport = int.Parse (slport);
+			int port = int.Parse (sport);
+
+			TcpListener listener = new TcpListener (localport);
 
 			listener.Start ();
 
 			var log = NLog.LogManager.GetCurrentClassLogger ();
 
-			log.Info ("Listener started on 8143");
+			log.Info ("Listener started on " + localport);
 
 			Task.Run (async () => {
 
@@ -28,7 +41,7 @@ namespace testimap
 					var client = new TcpClient ();
 //					client.Client.Blocking = false;
 //					incoming.Client.Blocking = false;
-					await client.ConnectAsync ("imap.gmail.com", 993);
+					await client.ConnectAsync (host, port);
 
 					log.Warn("Got connection");
 
@@ -40,7 +53,7 @@ namespace testimap
 					try {
 						var ssl = new SslStream (rawStream);
 
-						await ssl.AuthenticateAsClientAsync ("imap.gmail.com", new X509CertificateCollection (), System.Security.Authentication.SslProtocols.Tls12,
+						await ssl.AuthenticateAsClientAsync (host, new X509CertificateCollection (), System.Security.Authentication.SslProtocols.Tls12,
 							false
 						);
 
