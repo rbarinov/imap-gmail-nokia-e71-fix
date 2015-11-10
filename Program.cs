@@ -39,14 +39,22 @@ namespace testimap
 					var incoming = await listener.AcceptTcpClientAsync ();
 
 					var client = new TcpClient ();
-//					client.Client.Blocking = false;
-//					incoming.Client.Blocking = false;
 					await client.ConnectAsync (host, port);
 
-					log.Warn("Got connection");
+					log.Warn ("Got connection");
 
 					var rawStream = client.GetStream ();
-					var inputStream = incoming.GetStream ();
+					Stream inputStream = incoming.GetStream ();
+
+					if (File.Exists("mail.pfx")) {
+						var ss = new SslStream (inputStream, false);
+						await ss.AuthenticateAsServerAsync (new X509Certificate2 ("mail.pfx"));
+						inputStream = ss;
+
+						log.Warn("Running secure SSL stream from client");
+					} else {
+						log.Fatal("Running insecure stream from client");
+					}
 
 					SslStream enc = null;
 
@@ -63,29 +71,39 @@ namespace testimap
 					} catch (Exception e) {
 					}
 
+					Task.Run (async () => {
+						while (true) {
+							await Task.Delay (50);	
+							if (!IsConnected (client.Client) || !IsConnected (incoming.Client)) {
+								log.Warn ("Connection closed from one of the parties");
+								incoming.Close ();
+								client.Close ();
+							}
+						}
+					});
+
 					var clientStream = enc;
 					Task.Run (async () => {
 						var buffer = new byte[1024];
 						while (true) {
 							try {
-								if (inputStream.DataAvailable) {
-									var read = await inputStream.ReadAsync (buffer, 0, 1024);
-
-									log.Debug("IN " + Encoding.UTF8.GetString(buffer, 0, read));
+								var read = await inputStream.ReadAsync (buffer, 0, 1024);
+								if (read > 0) {
+									log.Debug ("IN " + Encoding.UTF8.GetString (buffer, 0, read));
 
 									await clientStream.WriteAsync (buffer, 0, read);
 									await clientStream.FlushAsync ();
 								} else {
-									await Task.Delay (50);	
-									if (!IsConnected(client.Client) || !IsConnected(incoming.Client)) {
-										throw new Exception();
+									await Task.Delay (50);
+									if (!IsConnected (client.Client) || !IsConnected (incoming.Client)) {
+										throw new Exception ();
 									}
 								}
 							} catch (Exception e) {
-								incoming.Close();
-								client.Close();
+								incoming.Close ();
+								client.Close ();
 
-								log.Warn("Connection closed on IN read " + e.GetType().Name + " " + e.Message);
+								log.Warn ("Connection closed on IN read " + e.GetType ().Name + " " + e.Message);
 								return;
 							}
 						}
@@ -99,21 +117,21 @@ namespace testimap
 
 								if (read > 0) {
 									
-									log.Debug("OUT " + Encoding.UTF8.GetString(buffer, 0, read));
+									log.Debug ("OUT " + Encoding.UTF8.GetString (buffer, 0, read));
 
 									await inputStream.WriteAsync (buffer, 0, read);
 									await inputStream.FlushAsync ();
 								} else {
 									await Task.Delay (50);
-									if (!IsConnected(client.Client) || !IsConnected(incoming.Client)) {
-										throw new Exception();
+									if (!IsConnected (client.Client) || !IsConnected (incoming.Client)) {
+										throw new Exception ();
 									}
 								}
 							} catch (Exception e) {
-								incoming.Close();
-								client.Close();
+								incoming.Close ();
+								client.Close ();
 
-								log.Warn("Connection closed on OUT read " + e.GetType().Name + " " + e.Message);
+								log.Warn ("Connection closed on OUT read " + e.GetType ().Name + " " + e.Message);
 								return;
 							}
 						}
