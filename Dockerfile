@@ -3,4 +3,4 @@ EXPOSE 8143
 
 WORKDIR /usr/src/app/build/
 
-CMD mono /usr/src/app/build/testimap.exe $LOCAL_PORT $HOST $PORT
+CMD mono testimap.exe $LOCAL_PORT $HOST $PORT
