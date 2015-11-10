@@ -82,6 +82,7 @@ namespace testimap
 					} catch (Exception e) {
 						incoming.Close();
 						client.Close();
+						log.Fatal("Client SSL error, disconnecting");
 						return;
 					}
 
