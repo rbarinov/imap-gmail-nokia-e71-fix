@@ -21,7 +21,7 @@ namespace testimap
 			slport = args [0];
 			host = args [1];
 			sport = args [2];
-			pfx = args.Equals > 3 ? args [3] : null;
+			pfx = args.Length > 3 ? args [3] : null;
 
 			int localport = int.Parse (slport);
 			int port = int.Parse (sport);
