@@ -257,11 +257,18 @@ namespace testimap
 		{
 			string host, slport, sport, pfx;
 
+			bool enableTrace = false;
 			#if DEBUG
-			NLog.LogManager.Configuration.LoggingRules.Insert(0, new NLog.Config.LoggingRule("*", NLog.LogLevel.Trace, NLog.LogManager.Configuration.FindTargetByName("cc")));
+			enableTrace = true;
 			#else
-			NLog.LogManager.Configuration.LoggingRules.Insert(0, new NLog.Config.LoggingRule("*", NLog.LogLevel.Info,  NLog.LogManager.Configuration.FindTargetByName("cc")));
+			enableTrace = false;
 			#endif
+
+			if (Environment.GetEnvironmentVariable ("LOG_LEVEL") == "TRACE") {
+				enableTrace = true;
+			}
+
+			NLog.LogManager.Configuration.LoggingRules.Insert (0, new NLog.Config.LoggingRule ("*", enableTrace ? NLog.LogLevel.Trace : NLog.LogLevel.Info, NLog.LogManager.Configuration.FindTargetByName ("cc")));
 
 			if (args.Length < 3) {
 				throw new ArgumentException ("use args: proxyport host port");
