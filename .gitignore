@@ -271,3 +271,10 @@ spa/typings
 
 
 bower_components
+
+
+*.pfx
+*.cer
+*.crt
+*.pem
+*.key
