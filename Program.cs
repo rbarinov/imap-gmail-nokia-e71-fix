@@ -58,18 +58,18 @@ namespace testimap
 					var rawStream = client.GetStream ();
 					Stream inputStream = incoming.GetStream ();
 
-					if (pfx != null) {
-						var ss = new SslStream (inputStream, false);
-						await ss.AuthenticateAsServerAsync (serverCert);
-						inputStream = ss;
-						log.Warn("Running secure SSL stream from client");
-					} else {
-						log.Fatal("Running insecure stream from client");
-					}
-
 					SslStream enc = null;
 
 					try {
+						if (pfx != null) {
+							var ss = new SslStream (inputStream, false);
+							await ss.AuthenticateAsServerAsync (serverCert);
+							inputStream = ss;
+							log.Warn("Running secure SSL stream from client");
+						} else {
+							log.Fatal("Running insecure stream from client");
+						}
+
 						var ssl = new SslStream (rawStream);
 
 						await ssl.AuthenticateAsClientAsync (host, new X509CertificateCollection (), System.Security.Authentication.SslProtocols.Tls12,
@@ -80,6 +80,9 @@ namespace testimap
 
 						enc = ssl;
 					} catch (Exception e) {
+						incoming.Close();
+						client.Close();
+						return;
 					}
 
 					Task.Run (async () => {
