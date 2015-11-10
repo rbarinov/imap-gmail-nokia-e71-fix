@@ -12,7 +12,7 @@ namespace testimap
 	{
 		public static void Main (string[] args)
 		{
-			string host, slport, sport;
+			string host, slport, sport, pfx;
 
 			if (args.Length < 3) {
 				throw new ArgumentException ("use args: proxyport host port");
@@ -21,6 +21,7 @@ namespace testimap
 			slport = args [0];
 			host = args [1];
 			sport = args [2];
+			pfx = args.Equals > 3 ? args [3] : null;
 
 			int localport = int.Parse (slport);
 			int port = int.Parse (sport);
@@ -46,9 +47,9 @@ namespace testimap
 					var rawStream = client.GetStream ();
 					Stream inputStream = incoming.GetStream ();
 
-					if (File.Exists("mail.pfx")) {
+					if (pfx != null) {
 						var ss = new SslStream (inputStream, false);
-						await ss.AuthenticateAsServerAsync (new X509Certificate2 ("mail.pfx"));
+						await ss.AuthenticateAsServerAsync (new X509Certificate2 (pfx));
 						inputStream = ss;
 
 						log.Warn("Running secure SSL stream from client");
