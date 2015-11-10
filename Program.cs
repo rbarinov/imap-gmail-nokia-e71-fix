@@ -21,7 +21,19 @@ namespace testimap
 			slport = args [0];
 			host = args [1];
 			sport = args [2];
-			pfx = args.Length > 3 ? args [3] : null;
+
+			pfx = null;
+			X509Certificate serverCert = null;
+			var log = NLog.LogManager.GetCurrentClassLogger ();
+
+			if (args.Length > 3) {
+				pfx = args [3];
+				serverCert = new X509Certificate2 (pfx);
+
+				log.Warn ("loaded certificate for subj : " + serverCert.Subject);
+			} else {
+				log.Warn ("starting in insecure mode");
+			}
 
 			int localport = int.Parse (slport);
 			int port = int.Parse (sport);
@@ -30,7 +42,6 @@ namespace testimap
 
 			listener.Start ();
 
-			var log = NLog.LogManager.GetCurrentClassLogger ();
 
 			log.Info ("Listener started on " + localport);
 
@@ -49,9 +60,8 @@ namespace testimap
 
 					if (pfx != null) {
 						var ss = new SslStream (inputStream, false);
-						await ss.AuthenticateAsServerAsync (new X509Certificate2 (pfx));
+						await ss.AuthenticateAsServerAsync (serverCert);
 						inputStream = ss;
-
 						log.Warn("Running secure SSL stream from client");
 					} else {
 						log.Fatal("Running insecure stream from client");
