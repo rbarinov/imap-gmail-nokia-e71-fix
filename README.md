@@ -21,11 +21,11 @@ Does not matter which hosting provider you will use, but this example defines th
 
 ## Install docker
 1. SSH onto your server with password or SSH public key auth
-    ```ssh
+    ```
     $ ssh root@[your server ip address]
     ```
 2. Install docker with single command
-    ```ssh
+    ```
     $ curl -L get.docker.com | sh
     ```
 3. It is done!
