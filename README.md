@@ -69,13 +69,13 @@ If you want to log all traffic, just add "-e LOG_LEVEL=TRACE " after each "docke
 
 ```sh
 # start imap proxy
-docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-imap -e LOCAL_PORT=993 -e HOST=imap.gmail.com -e PORT=993 -p 993:993 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
+$ docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-imap -e LOCAL_PORT=993 -e HOST=imap.gmail.com -e PORT=993 -p 993:993 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
 
 # start smtp proxy
-docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-smtp -e LOCAL_PORT=465 -e HOST=smtp.gmail.com -e PORT=465 -p 465:465 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
+$ docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-smtp -e LOCAL_PORT=465 -e HOST=smtp.gmail.com -e PORT=465 -p 465:465 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
 
 # start pop3 proxy
-docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-pop -e LOCAL_PORT=995 -e HOST=pop.gmail.com -e PORT=995 -p 995:995 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
+$ docker run -v /root/mail.pfx:/usr/src/app/build/mail.pfx:ro -d --restart=always --name=e71-pop -e LOCAL_PORT=995 -e HOST=pop.gmail.com -e PORT=995 -p 995:995 e71 bash -c 'mono testimap.exe $LOCAL_PORT $HOST $PORT ./mail.pfx'
 ```
 
 ## Stop or remove application
