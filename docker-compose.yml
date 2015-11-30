@@ -7,7 +7,7 @@ pop3:
     LOCAL_PORT: "110"
     HOST: pop.gmail.com
     PORT: "995"
-  command: mono testimap.exe 995 pop.gmail.com 110 ./mail.pfx
+  command: mono testimap.exe 110 pop.gmail.com 995 ./mail.pfx
   ports:
     - "55110:110"
 imap:
