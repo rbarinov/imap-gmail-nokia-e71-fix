@@ -1,0 +1,37 @@
+pop3:
+  image: rbarinov/e71
+  volumes:
+    - "/root/mail.pfx:/usr/src/app/build/mail.pfx:ro"
+  restart: always
+  environment:
+    LOCAL_PORT: "110"
+    HOST: pop.gmail.com
+    PORT: "995"
+  command: mono testimap.exe 995 pop.gmail.com 110 ./mail.pfx
+  ports:
+    - "55110:110"
+imap:
+  image: rbarinov/e71
+  volumes:
+    - "/root/mail.pfx:/usr/src/app/build/mail.pfx:ro"
+  restart: always
+  environment:
+    LOCAL_PORT: "143"
+    HOST: imap.gmail.com
+    PORT: "993"
+  command: mono testimap.exe 143 imap.gmail.com 993 ./mail.pfx
+  ports:
+    - "55143:143"
+smtp:
+  image: rbarinov/e71
+  volumes:
+    - "/root/mail.pfx:/usr/src/app/build/mail.pfx:ro"
+  restart: always
+  environment:
+    LOCAL_PORT: "25"
+    HOST: smtp.gmail.com
+    PORT: "465"
+  command: mono testimap.exe 25 smtp.gmail.com 465 ./mail.pfx
+  ports:
+    - "55025:25"
+
